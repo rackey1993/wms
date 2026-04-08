@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业仓库管理系统</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #1a56db;
+    --primary-dark: #1e40af;
+    --primary-light: #dbeafe;
+    --success: #057a55;
+    --success-light: #d1fae5;
+    --danger: #c81e1e;
+    --danger-light: #fee2e2;
+    --warning: #92400e;
+    --warning-light: #fef3c7;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    --bg: #f0f4f8;
+    --sidebar-w: 220px;
+    --header-h: 56px;
+    --border-r: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.05);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--gray-800);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── Sidebar ─── */
+  #sidebar {
+    width: var(--sidebar-w);
+    background: var(--gray-900);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .sidebar-logo h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: .3px;
+  }
+
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 2px;
+  }
+
+  .sidebar-section {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray-500);
+    padding: 0 20px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: var(--gray-400);
+    font-size: 13.5px;
+    transition: all .15s;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
+
+  .nav-item.active {
+    background: rgba(26,86,219,.2);
+    color: #93c5fd;
+    border-left-color: #3b82f6;
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    opacity: .7;
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255,255,255,.05);
+  }
+
+  .sidebar-footer p {
+    font-size: 11px;
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+
+  /* ─── Main ─── */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+  }
+
+  #topbar h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-800);
+    flex: 1;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #045f42; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #a61717; }
+  .btn-outline {
+    background: #fff;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+  }
+  .btn-outline:hover { background: var(--gray-50); }
+  .btn-warning { background: #d97706; color: #fff; }
+  .btn-warning:hover { background: #b45309; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  /* ─── Pages ─── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ─── Cards ─── */
+  .card {
+    background: #fff;
+    border-radius: var(--border-r);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-800);
+  }
+
+  .card-body { padding: 18px; }
+
+  /* ─── Stats Grid ─── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border-radius: var(--border-r);
+    border: 1px solid var(--gray-200);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gray-900);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 3px;
+  }
+
+  .stat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── Table ─── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    background: var(--gray-50);
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--gray-200);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--gray-50); }
+
+  /* ─── Badges ─── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge-success { background: var(--success-light); color: var(--success); }
+  .badge-danger { background: var(--danger-light); color: var(--danger); }
+  .badge-warning { background: var(--warning-light); color: var(--warning); }
+  .badge-info { background: var(--primary-light); color: var(--primary-dark); }
+  .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+
+  /* ─── Forms ─── */
+  .form-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .form-grid-2 { grid-template-columns: 1fr 1fr; }
+  .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-600);
+    margin-bottom: 5px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--gray-800);
+    outline: none;
+    transition: border-color .15s;
+    background: #fff;
+  }
+
+  .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+
+  select.form-control { cursor: pointer; }
+
+  /* ─── Filter Bar ─── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 180px;
+    max-width: 280px;
+    padding: 7px 10px 7px 32px;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 9px center;
+  }
+
+  .search-input:focus { border-color: var(--primary); outline: none; }
+
+  /* ─── Modal ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  }
+
+  .modal-lg { max-width: 780px; }
+
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: var(--gray-100);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+  }
+
+  .modal-close:hover { background: var(--gray-200); }
+
+  .modal-body { padding: 20px; }
+
+  .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--gray-100);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* ─── Alert ─── */
+  .alert {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .alert-warning { background: var(--warning-light); color: var(--warning); border: 1px solid #fcd34d; }
+  .alert-danger { background: var(--danger-light); color: var(--danger); border: 1px solid #fca5a5; }
+  .alert-success { background: var(--success-light); color: var(--success); border: 1px solid #6ee7b7; }
+  .alert-info { background: var(--primary-light); color: var(--primary-dark); border: 1px solid #93c5fd; }
+
+  /* ─── Toast ─── */
+  #toast-container {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+    animation: slideIn .2s ease;
+    max-width: 320px;
+  }
+
+  .toast-success { background: var(--success); color: #fff; }
+  .toast-error { background: var(--danger); color: #fff; }
+  .toast-info { background: var(--primary); color: #fff; }
+
+  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ─── Dashboard Charts ─── */
+  .chart-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .chart-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .chart-bar-label { width: 80px; text-align: right; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .chart-bar-track { flex: 1; background: var(--gray-100); border-radius: 4px; height: 20px; overflow: hidden; }
+
+  .chart-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    transition: width .5s ease;
+    min-width: 24px;
+  }
+
+  /* ─── Tag ─── */
+  .tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: var(--gray-100);
+    color: var(--gray-600);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── Progress ─── */
+  .progress {
+    background: var(--gray-200);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width .3s;
+  }
+
+  .progress-bar.good { background: var(--success); }
+  .progress-bar.warn { background: #f59e0b; }
+  .progress-bar.bad { background: var(--danger); }
+
+  /* ─── Print ─── */
+  @media print {
+    body { background: #fff; }
+    #sidebar, #topbar, .no-print { display: none !important; }
+    #main { overflow: visible; }
+    #content { padding: 0; overflow: visible; }
+    .page { display: block !important; }
+    .page:not(.active) { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .btn { display: none !important; }
+    .modal-overlay { display: none !important; }
+  }
+
+  /* ─── Utilities ─── */
+  .text-mono { font-family: 'JetBrains Mono', monospace; }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .text-muted { color: var(--gray-400); }
+  .text-sm { font-size: 12px; }
+  .flex { display: flex; }
+  .flex-center { display: flex; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mb-14 { margin-bottom: 14px; }
+  .mb-20 { margin-bottom: 20px; }
+  .fw-600 { font-weight: 600; }
+  .col-span-2 { grid-column: span 2; }
+  .col-span-3 { grid-column: span 3; }
+  .col-span-4 { grid-column: span 4; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--gray-100); margin: 14px 0; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray-400);
+  }
+
+  .empty-state svg { margin-bottom: 12px; opacity: .4; }
+  .empty-state p { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- ─── Sidebar ─── -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>📦 仓库管理系统</h1>
+    <p>企业配件耗材管理</p>
+  </div>
+
+  <div class="sidebar-section">
+    <p class="sidebar-label">总览</p>
+    <div class="nav-item active" data-page="dashboard">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      数据看板
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <p class="sidebar-label">库存管理</p>
+    <div class="nav-item" data-page="items">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.29 7 8.71 5 8.71-5"/><path d="M12 22V12"/></svg>
+      物品档案
+    </div>
+    <div class="nav-item" data-page="in">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      采购入库
+    </div>
+    <div class="nav-item" data-page="out">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      部门领用
+    </div>
+    <div class="nav-item" data-page="inventory">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      库存盘点
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <p class="sidebar-label">报表</p>
+    <div class="nav-item" data-page="report_in">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      入库报表
+    </div>
+    <div class="nav-item" data-page="report_out">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      出库报表
+    </div>
+    <div class="nav-item" data-page="report_stock">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      库存汇总
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <p class="sidebar-label">系统</p>
+    <div class="nav-item" data-page="settings">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      数据管理
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <p>本地数据库版本 v2.0<br>数据存储于本地</p>
+  </div>
+</nav>
+
+<!-- ─── Main ─── -->
+<div id="main">
+  <div id="topbar">
+    <h2 id="page-title">数据看板</h2>
+    <div id="topbar-actions" class="flex gap-8"></div>
+  </div>
+
+  <div id="content">
+
+    <!-- ══════════════════════════════ Dashboard ══════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid" id="dash-stats"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">库存预警（低于安全库存）</span></div>
+          <div class="card-body" id="dash-warn" style="padding:12px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">近期出库部门统计</span></div>
+          <div class="card-body" id="dash-dept-chart" style="padding:14px;"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">最近10条操作记录</span></div>
+        <div class="table-wrap" id="dash-recent"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Items ══════════════════════════════ -->
+    <div class="page" id="page-items">
+      <div class="card mb-14">
+        <div class="card-header">
+          <span class="card-title">物品档案管理</span>
+          <div class="flex gap-8">
+            <div class="filter-bar">
+              <input class="search-input" id="items-search" placeholder="搜索编号/名称/分类…" oninput="renderItems()">
+              <select class="form-control" id="items-cat-filter" style="width:110px" onchange="renderItems()">
+                <option value="">全部分类</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-item')">＋ 新增物品</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="items-table">
+            <thead>
+              <tr>
+                <th>编号</th><th>物品名称</th><th>分类</th><th>规格/型号</th><th>单位</th>
+                <th>当前库存</th><th>安全库存</th><th>库存状态</th><th>参考单价</th><th>存放位置</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="items-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Inbound ══════════════════════════════ -->
+    <div class="page" id="page-in">
+      <div class="card mb-14">
+        <div class="card-header">
+          <span class="card-title">采购入库记录</span>
+          <div class="flex gap-8">
+            <div class="filter-bar">
+              <input class="search-input" id="in-search" placeholder="搜索物品名/供应商/经办人…" oninput="renderIn()">
+              <input type="month" class="form-control" id="in-month" style="width:130px" onchange="renderIn()">
+            </div>
+            <button class="btn btn-success" onclick="openModal('modal-in')">＋ 新增入库</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>入库单号</th><th>日期</th><th>物品名称</th><th>规格/型号</th>
+                <th>数量</th><th>单位</th><th>单价</th><th>总金额</th>
+                <th>供应商</th><th>经办人</th><th>备注</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="in-tbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:10px 16px;border-top:1px solid var(--gray-100);" id="in-summary"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Outbound ══════════════════════════════ -->
+    <div class="page" id="page-out">
+      <div class="card mb-14">
+        <div class="card-header">
+          <span class="card-title">部门领用出库记录</span>
+          <div class="flex gap-8">
+            <div class="filter-bar">
+              <input class="search-input" id="out-search" placeholder="搜索物品/部门/领用人…" oninput="renderOut()">
+              <select class="form-control" id="out-dept-filter" style="width:110px" onchange="renderOut()">
+                <option value="">全部部门</option>
+              </select>
+              <input type="month" class="form-control" id="out-month" style="width:130px" onchange="renderOut()">
+            </div>
+            <button class="btn btn-warning" onclick="openModal('modal-out')">＋ 新增出库</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>出库单号</th><th>日期</th><th>物品名称</th><th>规格/型号</th>
+                <th>数量</th><th>单位</th><th>领用部门</th><th>领用人</th><th>用途</th><th>经办人</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="out-tbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:10px 16px;border-top:1px solid var(--gray-100);" id="out-summary"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Inventory ══════════════════════════════ -->
+    <div class="page" id="page-inventory">
+      <div class="card mb-14">
+        <div class="card-header">
+          <span class="card-title">当前库存总览（实时）</span>
+          <div class="flex gap-8">
+            <input class="search-input" id="inv-search" placeholder="搜索物品…" oninput="renderInventory()">
+            <select class="form-control" id="inv-cat-filter" style="width:110px" onchange="renderInventory()">
+              <option value="">全部分类</option>
+            </select>
+            <select class="form-control" id="inv-status-filter" style="width:110px" onchange="renderInventory()">
+              <option value="">全部状态</option>
+              <option value="warn">库存不足</option>
+              <option value="ok">库存正常</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>编号</th><th>物品名称</th><th>分类</th><th>规格/型号</th>
+                <th>当前库存</th><th>安全库存</th><th>库存率</th><th>单位</th>
+                <th>参考单价</th><th>库存总价值</th><th>存放位置</th><th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="inv-tbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:10px 16px;border-top:1px solid var(--gray-100);display:flex;gap:24px;" id="inv-summary"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Report In ══════════════════════════════ -->
+    <div class="page" id="page-report_in">
+      <div class="card mb-14" id="report-in-card">
+        <div class="card-header no-print">
+          <span class="card-title">入库报表</span>
+          <div class="flex gap-8">
+            <input type="month" class="form-control" id="rpt-in-month" style="width:130px" onchange="renderReportIn()">
+            <button class="btn btn-outline" onclick="printReport()">🖨 打印报表</button>
+          </div>
+        </div>
+        <div id="report-in-content"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Report Out ══════════════════════════════ -->
+    <div class="page" id="page-report_out">
+      <div class="card mb-14" id="report-out-card">
+        <div class="card-header no-print">
+          <span class="card-title">出库报表</span>
+          <div class="flex gap-8">
+            <input type="month" class="form-control" id="rpt-out-month" style="width:130px" onchange="renderReportOut()">
+            <select class="form-control" id="rpt-out-dept" style="width:120px" onchange="renderReportOut()">
+              <option value="">全部部门</option>
+            </select>
+            <button class="btn btn-outline" onclick="printReport()">🖨 打印报表</button>
+          </div>
+        </div>
+        <div id="report-out-content"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Report Stock ══════════════════════════════ -->
+    <div class="page" id="page-report_stock">
+      <div class="card mb-14">
+        <div class="card-header no-print">
+          <span class="card-title">库存汇总报表</span>
+          <div class="flex gap-8">
+            <button class="btn btn-outline" onclick="printReport()">🖨 打印报表</button>
+          </div>
+        </div>
+        <div id="report-stock-content"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ Settings ══════════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">基础配置</span></div>
+          <div class="card-body">
+            <div class="form-group mb-14">
+              <label>企业名称</label>
+              <input class="form-control" id="cfg-company" placeholder="请输入企业名称">
+            </div>
+            <div class="form-group mb-14">
+              <label>仓库名称</label>
+              <input class="form-control" id="cfg-warehouse" placeholder="如：总仓、A仓库">
+            </div>
+            <div class="form-group mb-14">
+              <label>物品分类（每行一个）</label>
+              <textarea class="form-control" id="cfg-categories" rows="6" placeholder="办公耗材&#10;IT配件&#10;清洁用品&#10;维修配件"></textarea>
+            </div>
+            <div class="form-group mb-14">
+              <label>部门列表（每行一个）</label>
+              <textarea class="form-control" id="cfg-depts" rows="6" placeholder="行政部&#10;财务部&#10;IT部&#10;销售部"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">数据管理</span></div>
+          <div class="card-body">
+            <div class="alert alert-info mb-14">数据存储在浏览器本地，建议定期导出备份</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <p style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;">📤 导出备份</p>
+                <div class="flex gap-8">
+                  <button class="btn btn-outline" onclick="exportData('all')">导出全部数据 (JSON)</button>
+                  <button class="btn btn-outline" onclick="exportData('excel')">导出 Excel 格式 (CSV)</button>
+                </div>
+              </div>
+              <hr>
+              <div>
+                <p style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;">📥 导入恢复</p>
+                <div class="flex gap-8" style="align-items:center;">
+                  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+                  <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">从 JSON 文件导入</button>
+                </div>
+                <p class="text-sm text-muted" style="margin-top:6px;">⚠️ 导入将覆盖当前所有数据，请先备份</p>
+              </div>
+              <hr>
+              <div>
+                <p style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;">🗑 危险操作</p>
+                <div class="flex gap-8">
+                  <button class="btn btn-danger" onclick="clearAllData()">清空所有数据</button>
+                  <button class="btn btn-outline" onclick="loadSampleData()">加载示例数据</button>
+                </div>
+              </div>
+              <hr>
+              <div>
+                <p style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:6px;">📊 数据统计</p>
+                <div id="data-stats" style="font-size:13px;color:var(--gray-600);line-height:2;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #content -->
+</div><!-- end #main -->
+
+<!-- ─── Toast Container ─── -->
+<div id="toast-container"></div>
+
+<!-- ══════════════════ Modals ══════════════════ -->
+
+<!-- Modal: Add Item -->
+<div class="modal-overlay" id="modal-item">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-item-title">新增物品</h3>
+      <button class="modal-close" onclick="closeModal('modal-item')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid form-grid-2" style="gap:12px;">
+        <div class="form-group">
+          <label>物品编号 *</label>
+          <input class="form-control" id="item-code" placeholder="如：IT-001">
+        </div>
+        <div class="form-group">
+          <label>物品名称 *</label>
+          <input class="form-control" id="item-name" placeholder="物品全称">
+        </div>
+        <div class="form-group">
+          <label>分类 *</label>
+          <select class="form-control" id="item-category"></select>
+        </div>
+        <div class="form-group">
+          <label>规格/型号</label>
+          <input class="form-control" id="item-spec" placeholder="规格或型号">
+        </div>
+        <div class="form-group">
+          <label>单位 *</label>
+          <input class="form-control" id="item-unit" placeholder="个/箱/套/升…">
+        </div>
+        <div class="form-group">
+          <label>参考单价（元）</label>
+          <input class="form-control" type="number" id="item-price" placeholder="0.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>初始库存数量</label>
+          <input class="form-control" type="number" id="item-stock" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>安全库存（预警值）</label>
+          <input class="form-control" type="number" id="item-safe-stock" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>存放位置</label>
+          <input class="form-control" id="item-location" placeholder="如：A区3号货架">
+        </div>
+        <div class="form-group">
+          <label>备注</label>
+          <input class="form-control" id="item-remark" placeholder="其他说明">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-item')">取消</button>
+      <button class="btn btn-primary" onclick="saveItem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Inbound -->
+<div class="modal-overlay" id="modal-in">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>新增采购入库</h3>
+      <button class="modal-close" onclick="closeModal('modal-in')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid form-grid-3" style="gap:12px;margin-bottom:12px;">
+        <div class="form-group">
+          <label>入库单号</label>
+          <input class="form-control" id="in-no" placeholder="自动生成">
+        </div>
+        <div class="form-group">
+          <label>入库日期 *</label>
+          <input class="form-control" type="date" id="in-date">
+        </div>
+        <div class="form-group">
+          <label>经办人 *</label>
+          <input class="form-control" id="in-operator" placeholder="经办人姓名">
+        </div>
+      </div>
+      <hr>
+      <p style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:10px;">入库明细</p>
+      <div id="in-items-wrap" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;"></div>
+      <button class="btn btn-outline btn-sm" onclick="addInLine()">＋ 添加一行</button>
+      <hr>
+      <div class="form-grid form-grid-2" style="gap:12px;">
+        <div class="form-group">
+          <label>供应商</label>
+          <input class="form-control" id="in-supplier" placeholder="供应商名称">
+        </div>
+        <div class="form-group">
+          <label>备注</label>
+          <input class="form-control" id="in-remark" placeholder="采购备注">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-in')">取消</button>
+      <button class="btn btn-success" onclick="saveIn()">确认入库</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Outbound -->
+<div class="modal-overlay" id="modal-out">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>新增部门领用出库</h3>
+      <button class="modal-close" onclick="closeModal('modal-out')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid form-grid-3" style="gap:12px;margin-bottom:12px;">
+        <div class="form-group">
+          <label>出库单号</label>
+          <input class="form-control" id="out-no" placeholder="自动生成">
+        </div>
+        <div class="form-group">
+          <label>领用日期 *</label>
+          <input class="form-control" type="date" id="out-date">
+        </div>
+        <div class="form-group">
+          <label>经办人 *</label>
+          <input class="form-control" id="out-operator" placeholder="经办人姓名">
+        </div>
+        <div class="form-group">
+          <label>领用部门 *</label>
+          <select class="form-control" id="out-dept"></select>
+        </div>
+        <div class="form-group">
+          <label>领用人 *</label>
+          <input class="form-control" id="out-person" placeholder="领用人姓名">
+        </div>
+        <div class="form-group">
+          <label>用途说明</label>
+          <input class="form-control" id="out-purpose" placeholder="简要说明用途">
+        </div>
+      </div>
+      <hr>
+      <p style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:10px;">出库明细</p>
+      <div id="out-items-wrap" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;"></div>
+      <button class="btn btn-outline btn-sm" onclick="addOutLine()">＋ 添加一行</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-out')">取消</button>
+      <button class="btn btn-warning" onclick="saveOut()">确认出库</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm Delete -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <h3>确认删除</h3>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-msg" style="color:var(--gray-700);">确认删除此条记录？此操作不可撤销。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-confirm')">取消</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  DATA LAYER
+// ══════════════════════════════════════════════════════
+
+const DB = {
+  load(key, def=[]) {
+    try { return JSON.parse(localStorage.getItem('wms_' + key) || JSON.stringify(def)); }
+    catch { return def; }
+  },
+  save(key, val) { localStorage.setItem('wms_' + key, JSON.stringify(val)); },
+  get items() { return this.load('items'); },
+  set items(v) { this.save('items', v); },
+  get inbounds() { return this.load('inbounds'); },
+  set inbounds(v) { this.save('inbounds', v); },
+  get outbounds() { return this.load('outbounds'); },
+  set outbounds(v) { this.save('outbounds', v); },
+  get config() {
+    return this.load('config', {
+      company: '某某有限公司', warehouse: '综合仓库',
+      categories: ['办公耗材','IT配件','清洁用品','维修配件','安防器材'],
+      depts: ['行政部','财务部','IT部','销售部','生产部','人事部']
+    });
+  },
+  set config(v) { this.save('config', v); }
+};
+
+// ══════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════
+
+let uidCounter = Date.now();
+function uid() { return (++uidCounter).toString(36).toUpperCase(); }
+
+function genNo(prefix) {
+  const d = new Date();
+  const p = d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate());
+  return prefix + p + '-' + Math.floor(Math.random()*9000+1000);
+}
+
+function pad2(n) { return String(n).padStart(2,'0'); }
+
+function today() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+}
+
+function currentMonth() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1);
+}
+
+function fmtMoney(n) {
+  return '¥' + Number(n||0).toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function fmtNum(n) { return Number(n||0).toLocaleString('zh-CN'); }
+
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+
+const pageTitles = {
+  dashboard: '数据看板', items: '物品档案', in: '采购入库',
+  out: '部门领用出库', inventory: '库存盘点', report_in: '入库报表',
+  report_out: '出库报表', report_stock: '库存汇总报表', settings: '数据管理'
+};
+
+function navigate(page) {
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  document.querySelectorAll('.page').forEach(el => {
+    el.classList.toggle('active', el.id === 'page-' + page);
+  });
+  document.getElementById('page-title').textContent = pageTitles[page] || page;
+  document.getElementById('topbar-actions').innerHTML = '';
+  renderPage(page);
+}
+
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => navigate(el.dataset.page));
+});
+
+function renderPage(page) {
+  if (page === 'dashboard') renderDashboard();
+  else if (page === 'items') renderItems();
+  else if (page === 'in') renderIn();
+  else if (page === 'out') renderOut();
+  else if (page === 'inventory') renderInventory();
+  else if (page === 'report_in') renderReportIn();
+  else if (page === 'report_out') renderReportOut();
+  else if (page === 'report_stock') renderReportStock();
+  else if (page === 'settings') renderSettings();
+}
+
+// ══════════════════════════════════════════════════════
+//  STOCK CALCULATION
+// ══════════════════════════════════════════════════════
+
+function calcStock(itemId) {
+  const item = DB.items.find(x => x.id === itemId);
+  if (!item) return 0;
+  const initial = Number(item.initStock || 0);
+  const inQty = DB.inbounds
+    .filter(r => r.itemId === itemId)
+    .reduce((s, r) => s + Number(r.qty || 0), 0);
+  const outQty = DB.outbounds
+    .filter(r => r.itemId === itemId)
+    .reduce((s, r) => s + Number(r.qty || 0), 0);
+  return initial + inQty - outQty;
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════
+
+function renderDashboard() {
+  const items = DB.items;
+  const inbounds = DB.inbounds;
+  const outbounds = DB.outbounds;
+  const cfg = DB.config;
+
+  const totalItems = items.length;
+  const totalInQty = inbounds.reduce((s,r) => s+Number(r.qty||0), 0);
+  const totalInAmt = inbounds.reduce((s,r) => s+Number(r.qty||0)*Number(r.price||0), 0);
+  const totalOutQty = outbounds.reduce((s,r) => s+Number(r.qty||0), 0);
+
+  const warnItems = items.filter(item => {
+    const stock = calcStock(item.id);
+    return Number(item.safeStock || 0) > 0 && stock <= Number(item.safeStock);
+  });
+
+  const thisMonth = currentMonth();
+  const monthIn = inbounds.filter(r => r.date && r.date.startsWith(thisMonth));
+  const monthOut = outbounds.filter(r => r.date && r.date.startsWith(thisMonth));
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label"><span class="stat-dot" style="background:#3b82f6"></span>物品种类</div>
+      <div class="stat-value">${totalItems}</div>
+      <div class="stat-sub">在档物品总数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label"><span class="stat-dot" style="background:#10b981"></span>本月入库</div>
+      <div class="stat-value">${fmtNum(monthIn.reduce((s,r)=>s+Number(r.qty||0),0))}</div>
+      <div class="stat-sub">共 ${monthIn.length} 笔记录</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label"><span class="stat-dot" style="background:#f59e0b"></span>本月出库</div>
+      <div class="stat-value">${fmtNum(monthOut.reduce((s,r)=>s+Number(r.qty||0),0))}</div>
+      <div class="stat-sub">共 ${monthOut.length} 笔记录</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label"><span class="stat-dot" style="background:#ef4444"></span>库存预警</div>
+      <div class="stat-value" style="color:${warnItems.length>0?'var(--danger)':'var(--success)'}">${warnItems.length}</div>
+      <div class="stat-sub">低于安全库存数量</div>
+    </div>
+  `;
+
+  // Warning table
+  if (warnItems.length === 0) {
+    document.getElementById('dash-warn').innerHTML = '<div class="empty-state"><p>✅ 暂无库存预警</p></div>';
+  } else {
+    document.getElementById('dash-warn').innerHTML = `
+      <table><thead><tr><th>物品</th><th>当前库存</th><th>安全库存</th></tr></thead>
+      <tbody>${warnItems.slice(0,8).map(item => {
+        const stock = calcStock(item.id);
+        return `<tr><td>${item.name}<br><span class="text-muted text-sm">${item.spec||''}</span></td>
+          <td><span style="color:var(--danger);font-weight:600;">${stock}</span> ${item.unit}</td>
+          <td>${item.safeStock} ${item.unit}</td></tr>`;
+      }).join('')}</tbody></table>
+    `;
+  }
+
+  // Dept chart
+  const deptCounts = {};
+  outbounds.filter(r => r.date && r.date.startsWith(thisMonth)).forEach(r => {
+    deptCounts[r.dept] = (deptCounts[r.dept]||0) + Number(r.qty||0);
+  });
+  const sorted = Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]);
+  const maxVal = sorted[0]?.[1] || 1;
+  const colors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
+  if (sorted.length === 0) {
+    document.getElementById('dash-dept-chart').innerHTML = '<div class="empty-state"><p>本月暂无出库数据</p></div>';
+  } else {
+    document.getElementById('dash-dept-chart').innerHTML = `
+      <p style="font-size:11px;color:var(--gray-400);margin-bottom:10px;">本月各部门领用数量（件）</p>
+      <div class="chart-bar-wrap">
+        ${sorted.slice(0,6).map(([dept,qty],i) => `
+          <div class="chart-bar-row">
+            <span class="chart-bar-label" title="${dept}">${dept}</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:${Math.round(qty/maxVal*100)}%;background:${colors[i%colors.length]}">${qty}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Recent records
+  const allRecords = [
+    ...inbounds.map(r => ({...r, _type:'in'})),
+    ...outbounds.map(r => ({...r, _type:'out'}))
+  ].sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1).slice(0,10);
+
+  if (allRecords.length === 0) {
+    document.getElementById('dash-recent').innerHTML = '<div class="empty-state"><p>暂无记录</p></div>';
+  } else {
+    document.getElementById('dash-recent').innerHTML = `
+      <table><thead><tr><th>类型</th><th>日期</th><th>物品</th><th>数量</th><th>操作方</th><th>单号</th></tr></thead>
+      <tbody>${allRecords.map(r => {
+        const item = DB.items.find(x=>x.id===r.itemId);
+        return `<tr>
+          <td><span class="badge ${r._type==='in'?'badge-success':'badge-warning'}">${r._type==='in'?'入库':'出库'}</span></td>
+          <td>${r.date}</td>
+          <td>${item?.name||'-'} <span class="text-muted text-sm">${item?.spec||''}</span></td>
+          <td class="text-mono">${r.qty} ${item?.unit||''}</td>
+          <td>${r._type==='in'?r.supplier||r.operator:r.dept+'/'+r.person}</td>
+          <td><span class="tag">${r.no||'-'}</span></td>
+        </tr>`;
+      }).join('')}</tbody></table>
+    `;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  ITEMS
+// ══════════════════════════════════════════════════════
+
+function renderItems() {
+  const search = document.getElementById('items-search')?.value?.toLowerCase() || '';
+  const catFilter = document.getElementById('items-cat-filter')?.value || '';
+
+  // Populate category filter
+  const cats = DB.config.categories;
+  const catSel = document.getElementById('items-cat-filter');
+  if (catSel && catSel.options.length <= 1) {
+    cats.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c; o.textContent = c;
+      catSel.appendChild(o);
+    });
+  }
+
+  const items = DB.items.filter(item => {
+    const matchSearch = !search || item.name?.toLowerCase().includes(search) ||
+      item.code?.toLowerCase().includes(search) || item.category?.toLowerCase().includes(search);
+    const matchCat = !catFilter || item.category === catFilter;
+    return matchSearch && matchCat;
+  });
+
+  const tbody = document.getElementById('items-tbody');
+  if (!tbody) return;
+
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><p>暂无物品档案，点击右上角新增</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map(item => {
+    const stock = calcStock(item.id);
+    const safe = Number(item.safeStock || 0);
+    const isWarn = safe > 0 && stock <= safe;
+    const pct = safe > 0 ? Math.min(100, Math.round(stock/safe*100)) : 100;
+    return `<tr>
+      <td><span class="tag">${item.code}</span></td>
+      <td><strong>${item.name}</strong></td>
+      <td>${item.category}</td>
+      <td>${item.spec || '-'}</td>
+      <td>${item.unit}</td>
+      <td class="text-mono" style="font-weight:600;color:${isWarn?'var(--danger)':'var(--success)'}">${stock}</td>
+      <td class="text-mono">${item.safeStock || 0}</td>
+      <td><span class="badge ${isWarn?'badge-danger':'badge-success'}">${isWarn?'⚠ 不足':'正常'}</span></td>
+      <td class="text-mono">${item.price ? fmtMoney(item.price) : '-'}</td>
+      <td>${item.location || '-'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-outline btn-sm" onclick="editItem('${item.id}')">编辑</button>
+        <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="deleteRecord('item','${item.id}')">删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+let editingItemId = null;
+
+function openModal_item_new() {
+  editingItemId = null;
+  document.getElementById('modal-item-title').textContent = '新增物品';
+  ['item-code','item-name','item-spec','item-unit','item-price','item-stock','item-safe-stock','item-location','item-remark'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  // Populate category select
+  const sel = document.getElementById('item-category');
+  sel.innerHTML = DB.config.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  openModal('modal-item');
+}
+
+// Override the button click
+document.querySelector('[onclick="openModal(\'modal-item\')"]').onclick = openModal_item_new;
+
+function editItem(id) {
+  const item = DB.items.find(x=>x.id===id);
+  if (!item) return;
+  editingItemId = id;
+  document.getElementById('modal-item-title').textContent = '编辑物品';
+  const sel = document.getElementById('item-category');
+  sel.innerHTML = DB.config.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('item-code').value = item.code || '';
+  document.getElementById('item-name').value = item.name || '';
+  document.getElementById('item-spec').value = item.spec || '';
+  document.getElementById('item-unit').value = item.unit || '';
+  document.getElementById('item-price').value = item.price || '';
+  document.getElementById('item-stock').value = item.initStock || 0;
+  document.getElementById('item-safe-stock').value = item.safeStock || 0;
+  document.getElementById('item-location').value = item.location || '';
+  document.getElementById('item-remark').value = item.remark || '';
+  sel.value = item.category || '';
+  openModal('modal-item');
+}
+
+function saveItem() {
+  const code = document.getElementById('item-code').value.trim();
+  const name = document.getElementById('item-name').value.trim();
+  const unit = document.getElementById('item-unit').value.trim();
+  const category = document.getElementById('item-category').value;
+  if (!code || !name || !unit) { toast('请填写必填项（编号、名称、单位）','error'); return; }
+
+  const items = DB.items;
+  if (!editingItemId) {
+    if (items.find(x => x.code === code)) { toast('物品编号已存在', 'error'); return; }
+    items.push({
+      id: uid(), code, name, category,
+      spec: document.getElementById('item-spec').value.trim(),
+      unit,
+      price: document.getElementById('item-price').value || 0,
+      initStock: Number(document.getElementById('item-stock').value) || 0,
+      safeStock: Number(document.getElementById('item-safe-stock').value) || 0,
+      location: document.getElementById('item-location').value.trim(),
+      remark: document.getElementById('item-remark').value.trim(),
+      createdAt: today()
+    });
+    toast('物品新增成功');
+  } else {
+    const idx = items.findIndex(x=>x.id===editingItemId);
+    if (idx >= 0) {
+      items[idx] = { ...items[idx], code, name, category,
+        spec: document.getElementById('item-spec').value.trim(),
+        unit, price: document.getElementById('item-price').value || 0,
+        initStock: Number(document.getElementById('item-stock').value) || 0,
+        safeStock: Number(document.getElementById('item-safe-stock').value) || 0,
+        location: document.getElementById('item-location').value.trim(),
+        remark: document.getElementById('item-remark').value.trim()
+      };
+    }
+    toast('物品信息已更新');
+  }
+  DB.items = items;
+  closeModal('modal-item');
+  renderItems();
+}
+
+// ══════════════════════════════════════════════════════
+//  INBOUND
+// ══════════════════════════════════════════════════════
+
+function renderIn() {
+  const search = (document.getElementById('in-search')?.value || '').toLowerCase();
+  const month = document.getElementById('in-month')?.value || '';
+
+  const records = DB.inbounds.filter(r => {
+    const item = DB.items.find(x=>x.id===r.itemId);
+    const matchSearch = !search ||
+      item?.name?.toLowerCase().includes(search) ||
+      r.supplier?.toLowerCase().includes(search) ||
+      r.operator?.toLowerCase().includes(search);
+    const matchMonth = !month || (r.date && r.date.startsWith(month));
+    return matchSearch && matchMonth;
+  }).sort((a,b) => b.date > a.date ? 1 : -1);
+
+  const tbody = document.getElementById('in-tbody');
+  if (!tbody) return;
+
+  if (records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><p>暂无入库记录</p></div></td></tr>`;
+    document.getElementById('in-summary').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = records.map(r => {
+    const item = DB.items.find(x=>x.id===r.itemId);
+    const amt = Number(r.qty||0) * Number(r.price||0);
+    return `<tr>
+      <td><span class="tag">${r.no}</span></td>
+      <td>${r.date}</td>
+      <td><strong>${item?.name||'已删除'}</strong></td>
+      <td>${item?.spec||'-'}</td>
+      <td class="text-mono">${r.qty}</td>
+      <td>${item?.unit||''}</td>
+      <td class="text-mono">${r.price ? fmtMoney(r.price) : '-'}</td>
+      <td class="text-mono">${amt ? fmtMoney(amt) : '-'}</td>
+      <td>${r.supplier || '-'}</td>
+      <td>${r.operator}</td>
+      <td>${r.remark || '-'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteRecord('in','${r.id}')">删除</button></td>
+    </tr>`;
+  }).join('');
+
+  const totalQty = records.reduce((s,r)=>s+Number(r.qty||0),0);
+  const totalAmt = records.reduce((s,r)=>s+Number(r.qty||0)*Number(r.price||0),0);
+  document.getElementById('in-summary').innerHTML =
+    `<span class="text-sm text-muted">共 ${records.length} 条记录 · 合计入库 <strong>${fmtNum(totalQty)}</strong> 件 · 总金额 <strong>${fmtMoney(totalAmt)}</strong></span>`;
+}
+
+let inLines = [];
+
+function openModal_in_new() {
+  inLines = [];
+  document.getElementById('in-no').value = genNo('RK');
+  document.getElementById('in-date').value = today();
+  document.getElementById('in-operator').value = '';
+  document.getElementById('in-supplier').value = '';
+  document.getElementById('in-remark').value = '';
+  document.getElementById('in-items-wrap').innerHTML = '';
+  addInLine();
+  openModal('modal-in');
+}
+
+document.querySelector('[onclick="openModal(\'modal-in\')"]').onclick = openModal_in_new;
+
+function addInLine() {
+  const id = uid();
+  inLines.push(id);
+  const div = document.createElement('div');
+  div.id = 'in-line-' + id;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 30px;gap:8px;align-items:end;';
+  div.innerHTML = `
+    <div class="form-group" style="margin:0">
+      <label>物品 *</label>
+      <select class="form-control" id="in-item-${id}" onchange="autoFillPrice('${id}')">
+        <option value="">— 选择物品 —</option>
+        ${DB.items.map(it => `<option value="${it.id}" data-price="${it.price}">${it.name}${it.spec?' ('+it.spec+')':''}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>数量 *</label>
+      <input class="form-control" type="number" id="in-qty-${id}" placeholder="0" min="1">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>单价（元）</label>
+      <input class="form-control" type="number" id="in-price-${id}" placeholder="0.00" step="0.01">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>小计</label>
+      <input class="form-control" id="in-subtotal-${id}" placeholder="自动计算" readonly style="background:var(--gray-50)">
+    </div>
+    <button style="height:32px;align-self:end;background:var(--gray-100);border:none;border-radius:6px;cursor:pointer;font-size:16px;color:var(--gray-500);" onclick="removeInLine('${id}')">×</button>
+  `;
+  document.getElementById('in-items-wrap').appendChild(div);
+
+  // Live subtotal calc
+  ['qty','price'].forEach(field => {
+    document.getElementById(`in-${field}-${id}`)?.addEventListener('input', () => {
+      const q = Number(document.getElementById(`in-qty-${id}`).value || 0);
+      const p = Number(document.getElementById(`in-price-${id}`).value || 0);
+      document.getElementById(`in-subtotal-${id}`).value = q && p ? fmtMoney(q*p) : '';
+    });
+  });
+}
+
+function autoFillPrice(id) {
+  const sel = document.getElementById(`in-item-${id}`);
+  const price = sel.options[sel.selectedIndex]?.dataset.price;
+  if (price) document.getElementById(`in-price-${id}`).value = price;
+}
+
+function removeInLine(id) {
+  document.getElementById('in-line-' + id)?.remove();
+  inLines = inLines.filter(x=>x!==id);
+}
+
+function saveIn() {
+  const no = document.getElementById('in-no').value.trim();
+  const date = document.getElementById('in-date').value;
+  const operator = document.getElementById('in-operator').value.trim();
+  const supplier = document.getElementById('in-supplier').value.trim();
+  const remark = document.getElementById('in-remark').value.trim();
+  if (!date || !operator) { toast('请填写日期和经办人','error'); return; }
+
+  const added = [];
+  for (const id of inLines) {
+    const itemId = document.getElementById(`in-item-${id}`)?.value;
+    const qty = Number(document.getElementById(`in-qty-${id}`)?.value || 0);
+    const price = Number(document.getElementById(`in-price-${id}`)?.value || 0);
+    if (!itemId || qty <= 0) continue;
+    added.push({ id: uid(), no, date, itemId, qty, price, supplier, operator, remark, createdAt: today() });
+  }
+
+  if (added.length === 0) { toast('请至少添加一条有效明细','error'); return; }
+
+  DB.inbounds = [...DB.inbounds, ...added];
+  closeModal('modal-in');
+  renderIn();
+  toast(`入库成功，共 ${added.length} 条明细`);
+}
+
+// ══════════════════════════════════════════════════════
+//  OUTBOUND
+// ══════════════════════════════════════════════════════
+
+function renderOut() {
+  const search = (document.getElementById('out-search')?.value || '').toLowerCase();
+  const deptFilter = document.getElementById('out-dept-filter')?.value || '';
+  const month = document.getElementById('out-month')?.value || '';
+
+  // Populate dept filter
+  const deptSel = document.getElementById('out-dept-filter');
+  if (deptSel && deptSel.options.length <= 1) {
+    DB.config.depts.forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d;
+      deptSel.appendChild(o);
+    });
+  }
+
+  const records = DB.outbounds.filter(r => {
+    const item = DB.items.find(x=>x.id===r.itemId);
+    const matchSearch = !search ||
+      item?.name?.toLowerCase().includes(search) ||
+      r.dept?.toLowerCase().includes(search) ||
+      r.person?.toLowerCase().includes(search);
+    const matchDept = !deptFilter || r.dept === deptFilter;
+    const matchMonth = !month || (r.date && r.date.startsWith(month));
+    return matchSearch && matchDept && matchMonth;
+  }).sort((a,b) => b.date > a.date ? 1 : -1);
+
+  const tbody = document.getElementById('out-tbody');
+  if (!tbody) return;
+
+  if (records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><p>暂无出库记录</p></div></td></tr>`;
+    document.getElementById('out-summary').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = records.map(r => {
+    const item = DB.items.find(x=>x.id===r.itemId);
+    return `<tr>
+      <td><span class="tag">${r.no}</span></td>
+      <td>${r.date}</td>
+      <td><strong>${item?.name||'已删除'}</strong></td>
+      <td>${item?.spec||'-'}</td>
+      <td class="text-mono">${r.qty}</td>
+      <td>${item?.unit||''}</td>
+      <td><span class="badge badge-info">${r.dept}</span></td>
+      <td>${r.person}</td>
+      <td>${r.purpose || '-'}</td>
+      <td>${r.operator}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteRecord('out','${r.id}')">删除</button></td>
+    </tr>`;
+  }).join('');
+
+  const totalQty = records.reduce((s,r)=>s+Number(r.qty||0),0);
+  document.getElementById('out-summary').innerHTML =
+    `<span class="text-sm text-muted">共 ${records.length} 条记录 · 合计出库 <strong>${fmtNum(totalQty)}</strong> 件</span>`;
+}
+
+let outLines = [];
+
+function openModal_out_new() {
+  outLines = [];
+  document.getElementById('out-no').value = genNo('CK');
+  document.getElementById('out-date').value = today();
+  document.getElementById('out-operator').value = '';
+  document.getElementById('out-person').value = '';
+  document.getElementById('out-purpose').value = '';
+  document.getElementById('out-items-wrap').innerHTML = '';
+
+  const deptSel = document.getElementById('out-dept');
+  deptSel.innerHTML = DB.config.depts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+  addOutLine();
+  openModal('modal-out');
+}
+
+document.querySelector('[onclick="openModal(\'modal-out\')"]').onclick = openModal_out_new;
+
+function addOutLine() {
+  const id = uid();
+  outLines.push(id);
+  const div = document.createElement('div');
+  div.id = 'out-line-' + id;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 30px;gap:8px;align-items:end;';
+  div.innerHTML = `
+    <div class="form-group" style="margin:0">
+      <label>物品 *</label>
+      <select class="form-control" id="out-item-${id}">
+        <option value="">— 选择物品 —</option>
+        ${DB.items.map(it => {
+          const stock = calcStock(it.id);
+          return `<option value="${it.id}" data-stock="${stock}">
+            ${it.name}${it.spec?' ('+it.spec+')':''} — 库存:${stock}${it.unit}
+          </option>`;
+        }).join('')}
+      </select>
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>数量 *</label>
+      <input class="form-control" type="number" id="out-qty-${id}" placeholder="0" min="1">
+    </div>
+    <button style="height:32px;align-self:end;background:var(--gray-100);border:none;border-radius:6px;cursor:pointer;font-size:16px;color:var(--gray-500);" onclick="removeOutLine('${id}')">×</button>
+  `;
+  document.getElementById('out-items-wrap').appendChild(div);
+}
+
+function removeOutLine(id) {
+  document.getElementById('out-line-' + id)?.remove();
+  outLines = outLines.filter(x=>x!==id);
+}
+
+function saveOut() {
+  const no = document.getElementById('out-no').value.trim();
+  const date = document.getElementById('out-date').value;
+  const operator = document.getElementById('out-operator').value.trim();
+  const dept = document.getElementById('out-dept').value;
+  const person = document.getElementById('out-person').value.trim();
+  const purpose = document.getElementById('out-purpose').value.trim();
+  if (!date || !operator || !dept || !person) { toast('请填写日期、部门、领用人和经办人','error'); return; }
+
+  const added = [];
+  for (const id of outLines) {
+    const itemId = document.getElementById(`out-item-${id}`)?.value;
+    const qty = Number(document.getElementById(`out-qty-${id}`)?.value || 0);
+    if (!itemId || qty <= 0) continue;
+    const stock = calcStock(itemId);
+    if (qty > stock) {
+      const item = DB.items.find(x=>x.id===itemId);
+      toast(`"${item?.name}"库存不足，当前库存：${stock}`, 'error');
+      return;
+    }
+    added.push({ id: uid(), no, date, itemId, qty, dept, person, purpose, operator, createdAt: today() });
+  }
+
+  if (added.length === 0) { toast('请至少添加一条有效明细','error'); return; }
+
+  DB.outbounds = [...DB.outbounds, ...added];
+  closeModal('modal-out');
+  renderOut();
+  toast(`出库成功，共 ${added.length} 条明细`);
+}
+
+// ══════════════════════════════════════════════════════
+//  INVENTORY
+// ══════════════════════════════════════════════════════
+
+function renderInventory() {
+  const search = (document.getElementById('inv-search')?.value || '').toLowerCase();
+  const catFilter = document.getElementById('inv-cat-filter')?.value || '';
+  const statusFilter = document.getElementById('inv-status-filter')?.value || '';
+
+  // Populate cat filter
+  const catSel = document.getElementById('inv-cat-filter');
+  if (catSel && catSel.options.length <= 1) {
+    DB.config.categories.forEach(c => {
+      const o = document.createElement('option'); o.value = c; o.textContent = c;
+      catSel.appendChild(o);
+    });
+  }
+
+  const rows = DB.items.map(item => {
+    const stock = calcStock(item.id);
+    const safe = Number(item.safeStock || 0);
+    const isWarn = safe > 0 && stock <= safe;
+    const pct = safe > 0 ? Math.min(100, Math.round(stock/safe*100)) : 100;
+    const value = stock * Number(item.price || 0);
+    return { item, stock, safe, isWarn, pct, value };
+  }).filter(r => {
+    const matchSearch = !search || r.item.name?.toLowerCase().includes(search) || r.item.code?.toLowerCase().includes(search);
+    const matchCat = !catFilter || r.item.category === catFilter;
+    const matchStatus = !statusFilter ||
+      (statusFilter === 'warn' && r.isWarn) ||
+      (statusFilter === 'ok' && !r.isWarn);
+    return matchSearch && matchCat && matchStatus;
+  });
+
+  const tbody = document.getElementById('inv-tbody');
+  if (!tbody) return;
+
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><p>暂无库存数据</p></div></td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(({ item, stock, safe, isWarn, pct, value }) => `
+      <tr>
+        <td><span class="tag">${item.code}</span></td>
+        <td><strong>${item.name}</strong></td>
+        <td>${item.category}</td>
+        <td>${item.spec||'-'}</td>
+        <td class="text-mono" style="font-weight:600;color:${isWarn?'var(--danger)':'var(--success)'}">${stock}</td>
+        <td class="text-mono">${safe || '-'}</td>
+        <td style="min-width:80px;">
+          <div class="progress"><div class="progress-bar ${pct<50?'bad':pct<80?'warn':'good'}" style="width:${pct}%"></div></div>
+          <span class="text-sm" style="color:${pct<50?'var(--danger)':pct<80?'#b45309':'var(--success)'};">${pct}%</span>
+        </td>
+        <td>${item.unit}</td>
+        <td class="text-mono">${item.price ? fmtMoney(item.price) : '-'}</td>
+        <td class="text-mono">${value ? fmtMoney(value) : '-'}</td>
+        <td>${item.location||'-'}</td>
+        <td><span class="badge ${isWarn?'badge-danger':'badge-success'}">${isWarn?'⚠ 不足':'正常'}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  const totalValue = rows.reduce((s,r)=>s+r.value,0);
+  const warnCnt = rows.filter(r=>r.isWarn).length;
+  document.getElementById('inv-summary').innerHTML = `
+    <span class="text-sm">共 <strong>${rows.length}</strong> 种物品</span>
+    <span class="text-sm" style="color:var(--danger)">预警 <strong>${warnCnt}</strong> 种</span>
+    <span class="text-sm">库存总价值 <strong>${fmtMoney(totalValue)}</strong></span>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  REPORTS
+// ══════════════════════════════════════════════════════
+
+function renderReportIn() {
+  const month = document.getElementById('rpt-in-month')?.value || currentMonth();
+  const records = DB.inbounds.filter(r => r.date && r.date.startsWith(month))
+    .sort((a,b)=>a.date>b.date?1:-1);
+
+  const cfg = DB.config;
+  const totalAmt = records.reduce((s,r)=>s+Number(r.qty||0)*Number(r.price||0),0);
+  const totalQty = records.reduce((s,r)=>s+Number(r.qty||0),0);
+
+  const html = `
+    <div style="padding:20px;">
+      <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid var(--gray-800);padding-bottom:12px;">
+        <h2 style="font-size:18px;font-weight:700;">${cfg.company}</h2>
+        <p style="font-size:14px;margin-top:4px;">${cfg.warehouse} — 采购入库报表</p>
+        <p style="font-size:12px;color:var(--gray-500);">统计周期：${month} &nbsp;|&nbsp; 打印时间：${today()}</p>
+      </div>
+      ${records.length === 0 ? '<p style="text-align:center;color:var(--gray-400);padding:30px 0">本月暂无入库记录</p>' : `
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:var(--gray-100);">
+            <th style="padding:8px;border:1px solid var(--gray-300);text-align:left;">入库单号</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">日期</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);text-align:left;">物品名称</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">规格</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">数量</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">单位</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">单价</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">金额</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);text-align:left;">供应商</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">经办人</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${records.map(r => {
+            const item = DB.items.find(x=>x.id===r.itemId);
+            const amt = Number(r.qty||0)*Number(r.price||0);
+            return `<tr>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);font-family:monospace;font-size:11px;">${r.no}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${r.date}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);font-weight:500;">${item?.name||'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);">${item?.spec||'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:right;font-weight:600;">${r.qty}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${item?.unit||''}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:right;">${r.price?fmtMoney(r.price):'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:right;font-weight:500;">${amt?fmtMoney(amt):'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);">${r.supplier||'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${r.operator}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--gray-50);font-weight:700;">
+            <td colspan="4" style="padding:8px;border:1px solid var(--gray-300);text-align:right;">合计：</td>
+            <td style="padding:8px;border:1px solid var(--gray-300);text-align:right;">${fmtNum(totalQty)}</td>
+            <td style="padding:8px;border:1px solid var(--gray-300);"></td>
+            <td style="padding:8px;border:1px solid var(--gray-300);"></td>
+            <td style="padding:8px;border:1px solid var(--gray-300);text-align:right;">${fmtMoney(totalAmt)}</td>
+            <td colspan="2" style="padding:8px;border:1px solid var(--gray-300);"></td>
+          </tr>
+        </tfoot>
+      </table>
+      `}
+      <div style="margin-top:30px;display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500);">
+        <span>制表人：___________</span>
+        <span>审核人：___________</span>
+        <span>仓库管理员：___________</span>
+      </div>
+    </div>
+  `;
+  document.getElementById('report-in-content').innerHTML = html;
+}
+
+function renderReportOut() {
+  const month = document.getElementById('rpt-out-month')?.value || currentMonth();
+  const deptFilter = document.getElementById('rpt-out-dept')?.value || '';
+
+  // Populate dept
+  const deptSel = document.getElementById('rpt-out-dept');
+  if (deptSel && deptSel.options.length <= 1) {
+    DB.config.depts.forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d;
+      deptSel.appendChild(o);
+    });
+  }
+
+  const records = DB.outbounds.filter(r =>
+    r.date?.startsWith(month) && (!deptFilter || r.dept === deptFilter)
+  ).sort((a,b)=>a.date>b.date?1:-1);
+
+  const cfg = DB.config;
+  const totalQty = records.reduce((s,r)=>s+Number(r.qty||0),0);
+
+  // Group by dept
+  const deptGroups = {};
+  records.forEach(r => { deptGroups[r.dept] = (deptGroups[r.dept]||0) + Number(r.qty||0); });
+
+  const html = `
+    <div style="padding:20px;">
+      <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid var(--gray-800);padding-bottom:12px;">
+        <h2 style="font-size:18px;font-weight:700;">${cfg.company}</h2>
+        <p style="font-size:14px;margin-top:4px;">${cfg.warehouse} — 部门领用出库报表</p>
+        <p style="font-size:12px;color:var(--gray-500);">统计周期：${month}${deptFilter?' | 部门：'+deptFilter:''} &nbsp;|&nbsp; 打印时间：${today()}</p>
+      </div>
+      ${records.length === 0 ? '<p style="text-align:center;color:var(--gray-400);padding:30px 0">本月暂无出库记录</p>' : `
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:var(--gray-100);">
+            <th style="padding:8px;border:1px solid var(--gray-300);">出库单号</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">日期</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);text-align:left;">物品名称</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">规格</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">数量</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">单位</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">领用部门</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">领用人</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);text-align:left;">用途</th>
+            <th style="padding:8px;border:1px solid var(--gray-300);">经办人</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${records.map(r => {
+            const item = DB.items.find(x=>x.id===r.itemId);
+            return `<tr>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);font-family:monospace;font-size:11px;">${r.no}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${r.date}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);font-weight:500;">${item?.name||'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);">${item?.spec||'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:right;font-weight:600;">${r.qty}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${item?.unit||''}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${r.dept}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${r.person}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);">${r.purpose||'-'}</td>
+              <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:center;">${r.operator}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--gray-50);font-weight:700;">
+            <td colspan="4" style="padding:8px;border:1px solid var(--gray-300);text-align:right;">合计：</td>
+            <td style="padding:8px;border:1px solid var(--gray-300);text-align:right;">${fmtNum(totalQty)}</td>
+            <td colspan="5" style="padding:8px;border:1px solid var(--gray-300);"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div style="margin-top:16px;padding:12px;background:var(--gray-50);border-radius:6px;">
+        <p style="font-size:12px;font-weight:600;margin-bottom:6px;">各部门领用汇总</p>
+        ${Object.entries(deptGroups).map(([dept,qty]) => `<span style="margin-right:16px;font-size:12px;">${dept}：<strong>${qty}</strong> 件</span>`).join('')}
+      </div>
+      `}
+      <div style="margin-top:30px;display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500);">
+        <span>制表人：___________</span>
+        <span>各部门负责人签字：___________</span>
+        <span>仓库管理员：___________</span>
+      </div>
+    </div>
+  `;
+  document.getElementById('report-out-content').innerHTML = html;
+}
+
+function renderReportStock() {
+  const cfg = DB.config;
+  const rows = DB.items.map(item => {
+    const stock = calcStock(item.id);
+    const safe = Number(item.safeStock||0);
+    const value = stock * Number(item.price||0);
+    return { item, stock, safe, value, isWarn: safe>0 && stock<=safe };
+  });
+
+  const totalValue = rows.reduce((s,r)=>s+r.value,0);
+  const warnCnt = rows.filter(r=>r.isWarn).length;
+
+  // Group by category
+  const catMap = {};
+  rows.forEach(r => {
+    const cat = r.item.category || '未分类';
+    if (!catMap[cat]) catMap[cat] = [];
+    catMap[cat].push(r);
+  });
+
+  const html = `
+    <div style="padding:20px;">
+      <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid var(--gray-800);padding-bottom:12px;">
+        <h2 style="font-size:18px;font-weight:700;">${cfg.company}</h2>
+        <p style="font-size:14px;margin-top:4px;">${cfg.warehouse} — 库存汇总盘点报表</p>
+        <p style="font-size:12px;color:var(--gray-500);">盘点日期：${today()}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div style="text-align:center;padding:12px;border:1px solid var(--gray-200);border-radius:8px;">
+          <p style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">物品种类</p>
+          <p style="font-size:22px;font-weight:700;">${rows.length}</p>
+        </div>
+        <div style="text-align:center;padding:12px;border:1px solid var(--gray-200);border-radius:8px;">
+          <p style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">库存预警</p>
+          <p style="font-size:22px;font-weight:700;color:var(--danger);">${warnCnt}</p>
+        </div>
+        <div style="text-align:center;padding:12px;border:1px solid var(--gray-200);border-radius:8px;">
+          <p style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">库存总价值</p>
+          <p style="font-size:18px;font-weight:700;">${fmtMoney(totalValue)}</p>
+        </div>
+        <div style="text-align:center;padding:12px;border:1px solid var(--gray-200);border-radius:8px;">
+          <p style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">分类数</p>
+          <p style="font-size:22px;font-weight:700;">${Object.keys(catMap).length}</p>
+        </div>
+      </div>
+      ${Object.entries(catMap).map(([cat, catRows]) => `
+        <div style="margin-bottom:20px;">
+          <p style="font-weight:700;font-size:14px;padding:8px 0;border-bottom:2px solid var(--gray-300);margin-bottom:0;">${cat}</p>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:var(--gray-50);">
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);text-align:left;">编号</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);text-align:left;">物品名称</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">规格</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">单位</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">当前库存</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">安全库存</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">参考单价</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">库存价值</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">存放位置</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">状态</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">实盘数量</th>
+                <th style="padding:7px 8px;border:1px solid var(--gray-200);">差异</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${catRows.map(({ item, stock, safe, value, isWarn }) => `
+                <tr>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);font-family:monospace;font-size:11px;">${item.code}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);font-weight:500;">${item.name}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);">${item.spec||'-'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);text-align:center;">${item.unit}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);text-align:right;font-weight:600;color:${isWarn?'var(--danger)':'inherit'};">${stock}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);text-align:right;">${safe||'-'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);text-align:right;">${item.price?fmtMoney(item.price):'-'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);text-align:right;">${value?fmtMoney(value):'-'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);">${item.location||'-'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);text-align:center;font-size:11px;color:${isWarn?'var(--danger)':'var(--success)'};">${isWarn?'⚠ 不足':'正常'}</td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);"></td>
+                  <td style="padding:6px 8px;border:1px solid var(--gray-200);"></td>
+                </tr>
+              `).join('')}
+              <tr style="background:var(--gray-50);font-weight:600;">
+                <td colspan="7" style="padding:7px 8px;border:1px solid var(--gray-200);text-align:right;">小计</td>
+                <td style="padding:7px 8px;border:1px solid var(--gray-200);text-align:right;">${fmtMoney(catRows.reduce((s,r)=>s+r.value,0))}</td>
+                <td colspan="4" style="padding:7px 8px;border:1px solid var(--gray-200);"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `).join('')}
+      <div style="margin-top:30px;display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500);">
+        <span>盘点人员：___________</span>
+        <span>复核人员：___________</span>
+        <span>负责人签字：___________</span>
+      </div>
+    </div>
+  `;
+  document.getElementById('report-stock-content').innerHTML = html;
+}
+
+function printReport() { window.print(); }
+
+// ══════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════
+
+function renderSettings() {
+  const cfg = DB.config;
+  document.getElementById('cfg-company').value = cfg.company || '';
+  document.getElementById('cfg-warehouse').value = cfg.warehouse || '';
+  document.getElementById('cfg-categories').value = (cfg.categories||[]).join('\n');
+  document.getElementById('cfg-depts').value = (cfg.depts||[]).join('\n');
+
+  const items = DB.items, inbounds = DB.inbounds, outbounds = DB.outbounds;
+  document.getElementById('data-stats').innerHTML = `
+    物品档案：${items.length} 条<br>
+    入库记录：${inbounds.length} 条<br>
+    出库记录：${outbounds.length} 条<br>
+    数据占用：${(JSON.stringify({items,inbounds,outbounds}).length/1024).toFixed(1)} KB
+  `;
+}
+
+function saveConfig() {
+  const cats = document.getElementById('cfg-categories').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const depts = document.getElementById('cfg-depts').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  DB.config = {
+    company: document.getElementById('cfg-company').value.trim(),
+    warehouse: document.getElementById('cfg-warehouse').value.trim(),
+    categories: cats, depts
+  };
+  toast('配置已保存');
+}
+
+// ══════════════════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════════════════
+
+function deleteRecord(type, id) {
+  document.getElementById('confirm-msg').textContent =
+    type === 'item' ? '确认删除此物品？删除后相关入出库记录的关联将失效。' : '确认删除此条记录？此操作不可撤销。';
+  document.getElementById('confirm-ok-btn').onclick = () => {
+    if (type === 'item') {
+      DB.items = DB.items.filter(x=>x.id!==id);
+      renderItems();
+    } else if (type === 'in') {
+      DB.inbounds = DB.inbounds.filter(x=>x.id!==id);
+      renderIn();
+    } else if (type === 'out') {
+      DB.outbounds = DB.outbounds.filter(x=>x.id!==id);
+      renderOut();
+    }
+    closeModal('modal-confirm');
+    toast('已删除');
+  };
+  openModal('modal-confirm');
+}
+
+// ══════════════════════════════════════════════════════
+//  DATA IMPORT / EXPORT
+// ══════════════════════════════════════════════════════
+
+function exportData(mode) {
+  const data = {
+    _version: '2.0',
+    _exported: new Date().toISOString(),
+    items: DB.items,
+    inbounds: DB.inbounds,
+    outbounds: DB.outbounds,
+    config: DB.config
+  };
+
+  if (mode === 'all') {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    downloadBlob(blob, `仓库数据备份_${today()}.json`);
+    toast('JSON 数据已导出');
+  } else {
+    // CSV export (outbounds + inbounds combined)
+    const rows = [['类型','单号','日期','物品编号','物品名称','规格','数量','单位','单价','金额','部门/供应商','人员','用途/备注']];
+    DB.inbounds.forEach(r => {
+      const item = DB.items.find(x=>x.id===r.itemId);
+      rows.push(['入库',r.no,r.date,item?.code||'',item?.name||'',item?.spec||'',r.qty,item?.unit||'',r.price||0,(Number(r.qty||0)*Number(r.price||0)).toFixed(2),r.supplier||'',r.operator,r.remark||'']);
+    });
+    DB.outbounds.forEach(r => {
+      const item = DB.items.find(x=>x.id===r.itemId);
+      rows.push(['出库',r.no,r.date,item?.code||'',item?.name||'',item?.spec||'',r.qty,item?.unit||'','','',r.dept,r.person,r.purpose||'']);
+    });
+    const csv = '\uFEFF' + rows.map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    downloadBlob(blob, `仓库数据_${today()}.csv`);
+    toast('CSV 数据已导出');
+  }
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.items || !data.inbounds || !data.outbounds) { toast('文件格式不正确','error'); return; }
+      DB.items = data.items;
+      DB.inbounds = data.inbounds;
+      DB.outbounds = data.outbounds;
+      if (data.config) DB.config = data.config;
+      renderSettings();
+      toast('数据导入成功！');
+    } catch {
+      toast('文件解析失败，请确认为有效的 JSON 文件','error');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ 确认清空所有数据？此操作不可撤销！\n建议先导出备份。')) return;
+  DB.items = []; DB.inbounds = []; DB.outbounds = [];
+  renderSettings();
+  toast('所有数据已清空');
+}
+
+// ══════════════════════════════════════════════════════
+//  SAMPLE DATA
+// ══════════════════════════════════════════════════════
+
+function loadSampleData() {
+  if (DB.items.length > 0 && !confirm('当前已有数据，确认加载示例数据？')) return;
+
+  const items = [
+    { id:'s1', code:'IT-001', name:'A4打印纸', category:'办公耗材', spec:'70g 500张/包', unit:'包', price:28, initStock:50, safeStock:20, location:'A区1号货架', remark:'', createdAt:today() },
+    { id:'s2', code:'IT-002', name:'碳粉盒', category:'IT配件', spec:'HP CC388A', unit:'个', price:180, initStock:12, safeStock:5, location:'A区2号货架', remark:'', createdAt:today() },
+    { id:'s3', code:'IT-003', name:'网线', category:'IT配件', spec:'超六类 1m', unit:'根', price:12, initStock:100, safeStock:30, location:'B区1号货架', remark:'', createdAt:today() },
+    { id:'s4', code:'OF-001', name:'圆珠笔', category:'办公耗材', spec:'黑色 0.7mm', unit:'支', price:2, initStock:200, safeStock:50, location:'A区3号货架', remark:'', createdAt:today() },
+    { id:'s5', code:'OF-002', name:'订书钉', category:'办公耗材', spec:'10号', unit:'盒', price:5, initStock:30, safeStock:10, location:'A区3号货架', remark:'', createdAt:today() },
+    { id:'s6', code:'CL-001', name:'洗手液', category:'清洁用品', spec:'500ml', unit:'瓶', price:15, initStock:8, safeStock:10, location:'C区1号货架', remark:'', createdAt:today() },
+    { id:'s7', code:'IT-004', name:'USB-A转Type-C数据线', category:'IT配件', spec:'1.5m', unit:'根', price:25, initStock:20, safeStock:5, location:'B区2号货架', remark:'', createdAt:today() },
+    { id:'s8', code:'MN-001', name:'电工胶带', category:'维修配件', spec:'PVC 18mm×10m', unit:'卷', price:6, initStock:40, safeStock:15, location:'D区1号货架', remark:'', createdAt:today() },
+  ];
+
+  const inbounds = [
+    { id:'si1', no:'RK20240301-1001', date:'2024-03-01', itemId:'s1', qty:50, price:28, supplier:'京东企业采购', operator:'张伟', remark:'', createdAt:today() },
+    { id:'si2', no:'RK20240301-1001', date:'2024-03-01', itemId:'s2', qty:10, price:180, supplier:'京东企业采购', operator:'张伟', remark:'', createdAt:today() },
+    { id:'si3', no:'RK20240315-1002', date:'2024-03-15', itemId:'s3', qty:100, price:12, supplier:'本地电脑城', operator:'李明', remark:'', createdAt:today() },
+    { id:'si4', no:'RK20240315-1002', date:'2024-03-15', itemId:'s4', qty:200, price:2, supplier:'文具批发市场', operator:'李明', remark:'', createdAt:today() },
+    { id:'si5', no:'RK20240320-1003', date:'2024-03-20', itemId:'s6', qty:20, price:15, supplier:'美团采购', operator:'王芳', remark:'', createdAt:today() },
+    { id:'si6', no:'RK20240320-1003', date:'2024-03-20', itemId:'s7', qty:20, price:25, supplier:'京东企业采购', operator:'王芳', remark:'', createdAt:today() },
+    { id:'si7', no:'RK20240401-1004', date:'2024-04-01', itemId:'s8', qty:40, price:6, supplier:'建材市场', operator:'张伟', remark:'', createdAt:today() },
+  ];
+
+  const outbounds = [
+    { id:'so1', no:'CK20240302-2001', date:'2024-03-02', itemId:'s1', qty:5, dept:'财务部', person:'陈燕', purpose:'日常打印使用', operator:'张伟', createdAt:today() },
+    { id:'so2', no:'CK20240302-2001', date:'2024-03-02', itemId:'s4', qty:20, dept:'财务部', person:'陈燕', purpose:'日常办公', operator:'张伟', createdAt:today() },
+    { id:'so3', no:'CK20240305-2002', date:'2024-03-05', itemId:'s2', qty:2, dept:'IT部', person:'赵强', purpose:'打印机维修更换', operator:'李明', createdAt:today() },
+    { id:'so4', no:'CK20240305-2002', date:'2024-03-05', itemId:'s3', qty:10, dept:'IT部', person:'赵强', purpose:'新员工工位网线布线', operator:'李明', createdAt:today() },
+    { id:'so5', no:'CK20240310-2003', date:'2024-03-10', itemId:'s1', qty:3, dept:'销售部', person:'刘洋', purpose:'合同打印', operator:'王芳', createdAt:today() },
+    { id:'so6', no:'CK20240318-2004', date:'2024-03-18', itemId:'s6', qty:5, dept:'行政部', person:'孙丽', purpose:'卫生间补充', operator:'王芳', createdAt:today() },
+    { id:'so7', no:'CK20240318-2004', date:'2024-03-18', itemId:'s7', qty:3, dept:'人事部', person:'周磊', purpose:'新员工入职配发', operator:'王芳', createdAt:today() },
+    { id:'so8', no:'CK20240325-2005', date:'2024-03-25', itemId:'s1', qty:8, dept:'行政部', person:'孙丽', purpose:'月末报表打印', operator:'张伟', createdAt:today() },
+    { id:'so9', no:'CK20240325-2005', date:'2024-03-25', itemId:'s5', qty:5, dept:'行政部', person:'孙丽', purpose:'日常使用', operator:'张伟', createdAt:today() },
+    { id:'so10', no:'CK20240401-2006', date:'2024-04-01', itemId:'s2', qty:1, dept:'IT部', person:'赵强', purpose:'二楼打印机耗材', operator:'李明', createdAt:today() },
+    { id:'so11', no:'CK20240403-2007', date:'2024-04-03', itemId:'s6', qty:7, dept:'行政部', person:'孙丽', purpose:'卫生间清洁补充', operator:'王芳', createdAt:today() },
+  ];
+
+  DB.items = items;
+  DB.inbounds = inbounds;
+  DB.outbounds = outbounds;
+  renderSettings();
+  toast('示例数据已加载！');
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+
+function init() {
+  // Set default month filters to current month
+  const m = currentMonth();
+  ['in-month','out-month','rpt-in-month','rpt-out-month'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = m;
+  });
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  renderDashboard();
+}
+
+init();
+</script>
+</body>
+</html>
